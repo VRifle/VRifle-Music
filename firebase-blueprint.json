@@ -1,0 +1,112 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "role": { "type": "string", "enum": ["admin", "user"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "role", "createdAt"]
+    },
+    "Song": {
+      "title": "Song",
+      "description": "Metadata for a song hosted externally (Dropbox/Google Drive).",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "artist": { "type": "string" },
+        "driveId": { "type": "string", "description": "Google Drive file ID (legacy)" },
+        "audioUrl": { "type": "string", "description": "Direct audio URL (e.g. Dropbox)" },
+        "coverUrl": { "type": "string", "format": "uri" },
+        "duration": { "type": "number", "description": "Duration in seconds" },
+        "addedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "artist", "coverUrl", "addedAt"]
+    },
+    "Playlist": {
+      "title": "Playlist",
+      "description": "A user's custom playlist.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "songIds": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "ownerId", "songIds", "createdAt"]
+    },
+    "Favorite": {
+      "title": "Favorite",
+      "description": "A user's favorite song.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "songId": { "type": "string" },
+        "addedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "songId", "addedAt"]
+    },
+    "Purchase": {
+      "title": "Purchase",
+      "description": "Record of a song download purchase.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "songId": { "type": "string" },
+        "amount": { "type": "number" },
+        "currency": { "type": "string" },
+        "paypalOrderId": { "type": "string" },
+        "purchasedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "songId", "amount", "currency", "paypalOrderId", "purchasedAt"]
+    },
+    "SongSubmission": {
+      "title": "SongSubmission",
+      "description": "A user's request to add a song to the library.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "title": { "type": "string" },
+        "artist": { "type": "string" },
+        "link": { "type": "string", "format": "uri" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "submittedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "userName", "title", "artist", "link", "status", "submittedAt"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "Stores user profiles."
+    },
+    "songs/{songId}": {
+      "schema": "Song",
+      "description": "Stores all available songs."
+    },
+    "playlists/{playlistId}": {
+      "schema": "Playlist",
+      "description": "Stores user playlists."
+    },
+    "favorites/{favoriteId}": {
+      "schema": "Favorite",
+      "description": "Stores favorite relationships."
+    },
+    "purchases/{purchaseId}": {
+      "schema": "Purchase",
+      "description": "Stores song purchase records."
+    },
+    "submissions/{submissionId}": {
+      "schema": "SongSubmission",
+      "description": "Stores user song submissions."
+    }
+  }
+}

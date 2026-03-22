@@ -1,0 +1,192 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: userId
+    // Fields:
+    //   - name: string (required)
+    //   - email: string (required)
+    //   - role: string (required, 'admin' or 'user')
+    //   - createdAt: string (required)
+    //
+    // Collection: songs
+    // Document ID: songId
+    // Fields:
+    //   - title: string (required)
+    //   - artist: string (required)
+    //   - driveId: string (optional, legacy)
+    //   - audioUrl: string (optional, new)
+    //   - coverUrl: string (required)
+    //   - duration: number (optional)
+    //   - addedAt: string (required)
+    //
+    // Collection: playlists
+    // Document ID: playlistId
+    // Fields:
+    //   - name: string (required)
+    //   - ownerId: string (required)
+    //   - songIds: list of strings (required)
+    //   - createdAt: string (required)
+    //
+    // Collection: favorites
+    // Document ID: favoriteId (userId_songId)
+    // Fields:
+    //   - userId: string (required)
+    //   - songId: string (required)
+    //   - addedAt: string (required)
+    //
+    // Collection: purchases
+    // Document ID: purchaseId
+    // Fields:
+    //   - userId: string (required)
+    //   - songId: string (required)
+    //   - amount: number (required)
+    //   - currency: string (required)
+    //   - paypalOrderId: string (required)
+    //   - purchasedAt: string (required)
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+
+    function isPlaylistOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.ownerId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         (request.auth.token.email == "vrifleveo3@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    // Domain Validators
+    function isValidUser(data) {
+      return hasOnlyAllowedFields(['name', 'email', 'role', 'createdAt']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.email is string && data.email.size() > 0 && data.email.size() < 150 &&
+             data.role in ['admin', 'user'] &&
+             data.createdAt is string;
+    }
+
+    function isValidSong(data) {
+      return hasRequiredFields(['title', 'artist', 'coverUrl', 'addedAt']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 200 &&
+             data.artist is string && data.artist.size() > 0 && data.artist.size() < 200 &&
+             (!('driveId' in data) || (data.driveId is string && data.driveId.size() < 500)) &&
+             (!('audioUrl' in data) || (data.audioUrl is string && data.audioUrl.size() < 1000)) &&
+             data.coverUrl is string && data.coverUrl.size() > 0 && data.coverUrl.size() < 500 &&
+             data.addedAt is string &&
+             (!('duration' in data) || (data.duration is number && data.duration >= 0));
+    }
+
+    function isValidPlaylist(data) {
+      return hasOnlyAllowedFields(['name', 'ownerId', 'songIds', 'createdAt']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.ownerId is string && data.ownerId == request.auth.uid &&
+             data.songIds is list && data.songIds.size() <= 1000 &&
+             data.createdAt is string;
+    }
+
+    function isValidFavorite(data) {
+      return hasOnlyAllowedFields(['userId', 'songId', 'addedAt']) &&
+             data.userId is string && data.userId == request.auth.uid &&
+             data.songId is string && data.songId.size() > 0 && data.songId.size() < 100 &&
+             data.addedAt is string;
+    }
+
+    function isValidPurchase(data) {
+      return hasOnlyAllowedFields(['userId', 'songId', 'amount', 'currency', 'paypalOrderId', 'purchasedAt']) &&
+             data.userId is string && data.userId == request.auth.uid &&
+             data.songId is string && data.songId.size() > 0 && data.songId.size() < 100 &&
+             data.amount is number && data.amount >= 0 &&
+             data.currency is string && data.currency.size() == 3 &&
+             data.paypalOrderId is string && data.paypalOrderId.size() > 0 && data.paypalOrderId.size() < 100 &&
+             data.purchasedAt is string;
+    }
+
+    function isValidSubmission(data) {
+      return hasRequiredFields(['userId', 'userName', 'title', 'artist', 'link', 'status', 'submittedAt']) &&
+             data.userId is string && data.userId == request.auth.uid &&
+             data.userName is string && data.userName.size() > 0 && data.userName.size() < 100 &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 200 &&
+             data.artist is string && data.artist.size() > 0 && data.artist.size() < 200 &&
+             data.link is string && data.link.size() > 0 && data.link.size() < 1000 &&
+             data.status in ['pending', 'approved', 'rejected'] &&
+             data.submittedAt is string;
+    }
+
+    // Rules
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated() && isOwner(userId) && isValidUser(request.resource.data) &&
+                    (request.resource.data.role == 'user' || isAdmin());
+      allow update: if isAuthenticated() && isOwner(userId) && isValidUser(request.resource.data) &&
+                    (request.resource.data.role == resource.data.role || isAdmin()) &&
+                    request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if isAdmin();
+    }
+
+    match /songs/{songId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidSong(request.resource.data);
+      allow update: if isAdmin() && isValidSong(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /playlists/{playlistId} {
+      allow read: if isPlaylistOwner() || isAdmin();
+      allow create: if isAuthenticated() && isValidPlaylist(request.resource.data);
+      allow update: if isPlaylistOwner() && isValidPlaylist(request.resource.data) &&
+                    request.resource.data.ownerId == resource.data.ownerId &&
+                    request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if isPlaylistOwner() || isAdmin();
+    }
+
+    match /favorites/{favoriteId} {
+      // favoriteId should be userId_songId
+      allow read: if isDocOwner() || isAdmin();
+      allow create: if isAuthenticated() && isValidFavorite(request.resource.data) &&
+                    favoriteId == request.auth.uid + '_' + request.resource.data.songId;
+      allow delete: if isDocOwner() || isAdmin();
+    }
+
+    match /purchases/{purchaseId} {
+      allow read: if isDocOwner() || isAdmin();
+      allow create: if isAuthenticated() && isValidPurchase(request.resource.data);
+      allow update, delete: if false; // Purchases are immutable
+    }
+
+    match /submissions/{submissionId} {
+      allow read: if isDocOwner() || isAdmin();
+      allow create: if isAuthenticated() && isValidSubmission(request.resource.data) && 
+                    request.resource.data.status == 'pending';
+      allow update: if isAdmin() && isValidSubmission(request.resource.data);
+      allow delete: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "name": "VRifle Music Beta",
+  "description": "A Spotify-like music streaming platform with Google Drive hosted songs and PayPal downloads.",
+  "requestFramePermissions": []
+}
