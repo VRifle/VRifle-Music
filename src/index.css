@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+@keyframes liquid-gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.bg-liquid {
+  background: linear-gradient(-45deg, #0f172a, #4c1d95, #064e3b, #1e1b4b, #0f172a);
+  background-size: 400% 400%;
+  animation: liquid-gradient 20s ease infinite;
+}
+
+/* Custom scrollbar for glassmorphism */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">VRifle Music</string>
+    <string name="title_activity_main">VRifle Music</string>
+    <string name="package_name">com.vrifle.music</string>
+    <string name="custom_url_scheme">com.vrifle.music</string>
+</resources>
