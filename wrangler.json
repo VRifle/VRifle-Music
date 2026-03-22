@@ -1,0 +1,7 @@
+{
+  "name": "vrifle-music",
+  "compatibility_date": "2024-03-20",
+  "assets": {
+    "directory": "dist"
+  }
+}
