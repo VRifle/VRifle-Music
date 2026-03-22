@@ -628,7 +628,10 @@ export const MainContent: React.FC<MainContentProps> = ({ currentView, showSubmi
           <button onClick={() => setActiveLegalModal('agb')} className="hover:text-white transition">{t('agb')}</button>
           <button onClick={() => setActiveLegalModal('widerruf')} className="hover:text-white transition">{t('widerruf')}</button>
         </div>
-        <p>&copy; {new Date().getFullYear()} VRifle Music. {t('allRightsReserved')}</p>
+        <div className="flex flex-col items-center gap-1">
+          <p>&copy; {new Date().getFullYear()} VRifle Music. {t('allRightsReserved')}</p>
+          <p className="text-[10px] text-zinc-600 uppercase tracking-widest">{t('aiGeneratedContent')}</p>
+        </div>
       </footer>
 
       {/* Legal Modals */}
@@ -642,36 +645,334 @@ export const MainContent: React.FC<MainContentProps> = ({ currentView, showSubmi
               {activeLegalModal === 'impressum' && (
                 <>
                   <p><strong>Angaben gemäß § 5 TMG</strong></p>
-                  <p>Max Mustermann<br/>Musterstraße 1<br/>12345 Musterstadt</p>
-                  <p><strong>Kontakt</strong><br/>Telefon: +49 (0) 123 44 55 66<br/>E-Mail: sk.vrifle@gmail.com</p>
-                  <p><em>(Hier fügst du dein echtes Impressum ein)</em></p>
+                  <p><strong>Betreiber der Website:</strong></p>
+                  <p>Lars Scherzer<br/>VRifle<br/>Alte Triebeler Straße 1a<br/>08606 Oelsnitz<br/>Deutschland</p>
+                  <p><strong>Kontakt:</strong></p>
+                  <p>E-Mail: <a href="mailto:sk.vrifle@gmail.com" className="text-blue-400 hover:underline">sk.vrifle@gmail.com</a><br/>Website: <a href="https://vrifle-3d.de" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">vrifle-3d.de</a></p>
+                  <p><strong>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV:</strong></p>
+                  <p>Lars Scherzer<br/>Alte Triebeler Straße 1a<br/>08606 Oelsnitz</p>
                 </>
               )}
               {activeLegalModal === 'datenschutz' && (
-                <>
-                  <p><strong>Datenschutzerklärung</strong></p>
-                  <p>Wir nehmen den Schutz Ihrer persönlichen Daten sehr ernst. Wir behandeln Ihre personenbezogenen Daten vertraulich und entsprechend der gesetzlichen Datenschutzvorschriften sowie dieser Datenschutzerklärung.</p>
-                  <p>Die Nutzung unserer Webseite ist in der Regel ohne Angabe personenbezogener Daten möglich. Soweit auf unseren Seiten personenbezogene Daten (beispielsweise Name, Anschrift oder E-Mail-Adressen) erhoben werden, erfolgt dies, soweit möglich, stets auf freiwilliger Basis.</p>
-                  <p><em>(Hier fügst du deine echte Datenschutzerklärung ein, inkl. Hinweis auf Firebase und PayPal)</em></p>
-                </>
+                <div className="space-y-6">
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">1. Allgemeine Hinweise</h4>
+                    <p>Der Schutz Ihrer persönlichen Daten ist uns ein wichtiges Anliegen. Diese Datenschutzerklärung informiert Sie darüber, welche personenbezogenen Daten bei der Nutzung von VRifle Music erhoben und verarbeitet werden.</p>
+                  </section>
+
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">2. Verantwortlicher</h4>
+                    <p>
+                      Lars Scherzer<br/>
+                      VRifle<br/>
+                      Alte Triebeler Straße 1a<br/>
+                      08606 Oelsnitz<br/>
+                      Deutschland
+                    </p>
+                    <p className="mt-2">
+                      E-Mail: <a href="mailto:sk.vrifle@gmail.com" className="text-blue-400 hover:underline">sk.vrifle@gmail.com</a><br/>
+                      Website: <a href="https://vrifle-3d.de" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">vrifle-3d.de</a>
+                    </p>
+                  </section>
+
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">3. Hosting und Content Delivery Network (CDN)</h4>
+                    <p>Diese Website wird über den Dienst Cloudflare betrieben.</p>
+                    <p className="mt-2"><strong>Anbieter:</strong><br/>Cloudflare, Inc., 101 Townsend St., San Francisco, CA 94107, USA</p>
+                    <p className="mt-2">Cloudflare bietet ein Content Delivery Network (CDN) sowie Sicherheitsfunktionen (z. B. DDoS-Schutz). Dabei wird der Datenverkehr über Server von Cloudflare geleitet.</p>
+                    <p className="mt-2">Dabei können folgende Daten verarbeitet werden:</p>
+                    <ul className="list-disc list-inside ml-2 mt-1">
+                      <li>IP-Adresse</li>
+                      <li>Browsertyp und -version</li>
+                      <li>Betriebssystem</li>
+                      <li>Referrer-URL</li>
+                      <li>Uhrzeit der Anfrage</li>
+                    </ul>
+                    <p className="mt-2">Die Nutzung von Cloudflare erfolgt im Interesse einer sicheren und effizienten Bereitstellung unseres Onlineangebotes (Art. 6 Abs. 1 lit. f DSGVO).</p>
+                  </section>
+
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">4. Datenerfassung auf der Website</h4>
+                    <h5 className="font-bold text-white/90 mt-3 mb-1">Server-Log-Dateien</h5>
+                    <p>Beim Besuch der Website werden automatisch Informationen erfasst:</p>
+                    <ul className="list-disc list-inside ml-2 mt-1">
+                      <li>Browsertyp und -version</li>
+                      <li>verwendetes Betriebssystem</li>
+                      <li>Referrer URL</li>
+                      <li>Hostname des zugreifenden Rechners</li>
+                      <li>Uhrzeit der Serveranfrage</li>
+                      <li>IP-Adresse (gekürzt)</li>
+                    </ul>
+                    <p className="mt-2">Diese Daten sind nicht bestimmten Personen zuordenbar und dienen ausschließlich der technischen Überwachung und Sicherheit.</p>
+
+                    <h5 className="font-bold text-white/90 mt-4 mb-1">Registrierung und Login über Google</h5>
+                    <p>Für die Nutzung bestimmter Funktionen ist ein Benutzerkonto erforderlich. Die Anmeldung erfolgt über den Dienst Google.</p>
+                    <p className="mt-2">Dabei können folgende Daten verarbeitet werden:</p>
+                    <ul className="list-disc list-inside ml-2 mt-1">
+                      <li>Name</li>
+                      <li>E-Mail-Adresse</li>
+                      <li>Google-Profil-ID</li>
+                    </ul>
+                    <p className="mt-2">Diese Daten werden zur Verwaltung Ihres Benutzerkontos verwendet (Art. 6 Abs. 1 lit. b DSGVO).</p>
+                  </section>
+
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">5. Nutzung der Plattform</h4>
+                    <h5 className="font-bold text-white/90 mt-3 mb-1">Musikstreaming</h5>
+                    <p>Bei der Nutzung der Streamingfunktion werden folgende Daten verarbeitet:</p>
+                    <ul className="list-disc list-inside ml-2 mt-1">
+                      <li>abgespielte Inhalte</li>
+                      <li>Nutzungszeitpunkte</li>
+                      <li>technische Streamingdaten</li>
+                    </ul>
+                    <p className="mt-2">Diese Verarbeitung erfolgt zur Bereitstellung der Plattform (Art. 6 Abs. 1 lit. b DSGVO).</p>
+                  </section>
+
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">6. Zahlungsabwicklung</h4>
+                    <p>Für kostenpflichtige Downloads erfolgt die Zahlung über PayPal.</p>
+                    <p className="mt-2">Dabei werden zur Zahlungsabwicklung folgende Daten an PayPal übermittelt:</p>
+                    <ul className="list-disc list-inside ml-2 mt-1">
+                      <li>Zahlungsbetrag</li>
+                      <li>Transaktionsdaten</li>
+                      <li>Zahlungsstatus</li>
+                    </ul>
+                    <p className="mt-2">Die Verarbeitung erfolgt zur Vertragserfüllung (Art. 6 Abs. 1 lit. b DSGVO).</p>
+                  </section>
+
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">7. Datenübermittlung in Drittländer (insbesondere USA)</h4>
+                    <p>Im Rahmen der Nutzung unserer Plattform kann es zur Übermittlung personenbezogener Daten in die Vereinigten Staaten von Amerika (USA) kommen.</p>
+                    <p className="mt-2">Dies betrifft insbesondere folgende Dienstleister:</p>
+                    <ul className="list-disc list-inside ml-2 mt-1">
+                      <li>Cloudflare</li>
+                      <li>Google</li>
+                      <li>PayPal</li>
+                    </ul>
+                    <p className="mt-2">Die USA gelten als Drittland ohne ein der EU gleichwertiges Datenschutzniveau.</p>
+                    <p className="mt-2">Es besteht insbesondere das Risiko, dass:</p>
+                    <ul className="list-disc list-inside ml-2 mt-1">
+                      <li>US-Behörden Zugriff auf personenbezogene Daten erhalten können</li>
+                      <li>Betroffenenrechte möglicherweise nicht durchsetzbar sind</li>
+                      <li>keine gleichwertigen Rechtsbehelfe bestehen</li>
+                    </ul>
+                    <p className="mt-2"><strong>Rechtsgrundlagen der Übermittlung</strong></p>
+                    <p>Die Übermittlung erfolgt auf Grundlage von:</p>
+                    <ul className="list-disc list-inside ml-2 mt-1">
+                      <li>Standardvertragsklauseln (SCC) gemäß Art. 46 DSGVO</li>
+                      <li>ggf. EU-U.S. Data Privacy Framework (sofern anwendbar)</li>
+                      <li>Einwilligung</li>
+                    </ul>
+                    <p className="mt-2">Sofern erforderlich, erfolgt die Datenübermittlung nur nach Ihrer ausdrücklichen Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO.</p>
+                  </section>
+
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">8. Speicherdauer</h4>
+                    <p>Personenbezogene Daten werden nur so lange gespeichert, wie dies zur Erfüllung der jeweiligen Zwecke erforderlich ist oder gesetzliche Aufbewahrungspflichten bestehen.</p>
+                  </section>
+
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">9. Ihre Rechte</h4>
+                    <p>Sie haben jederzeit das Recht auf:</p>
+                    <ul className="list-disc list-inside ml-2 mt-1">
+                      <li>Auskunft über Ihre gespeicherten Daten (Art. 15 DSGVO)</li>
+                      <li>Berichtigung unrichtiger Daten (Art. 16 DSGVO)</li>
+                      <li>Löschung Ihrer Daten (Art. 17 DSGVO)</li>
+                      <li>Einschränkung der Verarbeitung (Art. 18 DSGVO)</li>
+                      <li>Datenübertragbarkeit (Art. 20 DSGVO)</li>
+                      <li>Widerruf einer Einwilligung (Art. 7 Abs. 3 DSGVO)</li>
+                    </ul>
+                    <p className="mt-4">Zur Ausübung Ihrer Rechte wenden Sie sich bitte an:<br/>
+                    <a href="mailto:sk.vrifle@gmail.com" className="text-blue-400 hover:underline">sk.vrifle@gmail.com</a></p>
+                  </section>
+
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">10. Beschwerderecht bei der Aufsichtsbehörde</h4>
+                    <p>Sie haben das Recht, sich bei einer Datenschutz-Aufsichtsbehörde über die Verarbeitung Ihrer personenbezogenen Daten zu beschweren.</p>
+                    <p className="mt-2">Zuständig ist in der Regel die Aufsichtsbehörde Ihres Wohnortes oder unseres Unternehmenssitzes.</p>
+                  </section>
+
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">11. Änderungen dieser Datenschutzerklärung</h4>
+                    <p>Diese Datenschutzerklärung kann angepasst werden, um rechtlichen Anforderungen oder Änderungen unserer Leistungen gerecht zu werden.</p>
+                  </section>
+                </div>
               )}
               {activeLegalModal === 'agb' && (
-                <>
-                  <p><strong>Allgemeine Geschäftsbedingungen</strong></p>
-                  <p><strong>§1 Geltungsbereich</strong><br/>Für die Geschäftsbeziehung zwischen dem Anbieter und dem Kunden gelten ausschließlich die nachfolgenden Allgemeinen Geschäftsbedingungen in ihrer zum Zeitpunkt der Bestellung gültigen Fassung.</p>
-                  <p><strong>§2 Vertragsschluss</strong><br/>Der Vertrag kommt durch den Klick auf den Kaufen-Button und die erfolgreiche Zahlung über PayPal zustande.</p>
-                  <p><strong>§3 Nutzungsrechte</strong><br/>Der Kunde erwirbt ein einfaches, nicht übertragbares Recht, die angebotenen digitalen Inhalte für den privaten Gebrauch zu nutzen.</p>
-                  <p><em>(Hier fügst du deine echten AGB ein)</em></p>
-                </>
+                <div className="space-y-6">
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">1. Geltungsbereich</h4>
+                    <p>Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für die Nutzung der Musikplattform VRifle Music.</p>
+                    <p className="mt-2"><strong>Anbieter der Plattform ist:</strong></p>
+                    <p>
+                      Lars Scherzer<br/>
+                      VRifle<br/>
+                      Alte Triebeler Straße 1a<br/>
+                      08606 Oelsnitz<br/>
+                      Deutschland<br/>
+                      E-Mail: <a href="mailto:sk.vrifle@gmail.com" className="text-blue-400 hover:underline">sk.vrifle@gmail.com</a>
+                    </p>
+                    <p className="mt-2">Website: <a href="https://vrifle-3d.de" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">vrifle-3d.de</a></p>
+                    <p className="mt-2">Mit der Nutzung der Plattform erklärt sich der Nutzer mit diesen AGB einverstanden.</p>
+                  </section>
+
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">2. Leistungen der Plattform</h4>
+                    <p>VRifle Music bietet Nutzern:</p>
+                    <ul className="list-disc list-inside ml-2 mt-1">
+                      <li>kostenloses Streaming von Musik</li>
+                      <li>kostenpflichtigen Download von Musikstücken</li>
+                    </ul>
+                    <p className="mt-2">Der Betreiber behält sich vor, Inhalte jederzeit zu ändern, zu erweitern oder zu entfernen.</p>
+                  </section>
+
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">3. Registrierung und Nutzerkonto</h4>
+                    <p>(1) Für die Nutzung bestimmter Funktionen, insbesondere des Musikplayers und des Kaufs von Downloads, ist ein Benutzerkonto erforderlich.</p>
+                    <p>(2) Die Registrierung erfolgt ausschließlich über ein Google-Konto.</p>
+                    <p>(3) Der Nutzer ist verpflichtet, seine Zugangsdaten vertraulich zu behandeln.</p>
+                    <p>(4) Der Betreiber behält sich vor, Nutzerkonten bei Verstößen gegen diese AGB zu sperren oder zu löschen.</p>
+                  </section>
+
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">4. Nutzung des kostenlosen Streamings</h4>
+                    <p>(1) Das Streaming von Musik ist kostenlos.</p>
+                    <p>(2) Die Nutzung der gestreamten Inhalte ist ausschließlich für private Zwecke gestattet.</p>
+                    <p>(3) Insbesondere ist es untersagt:</p>
+                    <ul className="list-disc list-inside ml-2 mt-1">
+                      <li>die Inhalte kommerziell zu nutzen</li>
+                      <li>die Inhalte aufzunehmen, zu vervielfältigen oder weiterzuverbreiten</li>
+                      <li>die Inhalte öffentlich zugänglich zu machen</li>
+                    </ul>
+                  </section>
+
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">5. Musikdownloads und kommerzielle Nutzung</h4>
+                    <p>(1) Nutzer haben die Möglichkeit, Musikstücke kostenpflichtig zu erwerben und herunterzuladen.</p>
+                    <p>(2) Der Preis pro Musikstück beträgt 0,20 €.</p>
+                    <p>(3) Mit dem Kauf eines Musikstücks erhält der Nutzer ein einfaches, zeitlich unbegrenztes Nutzungsrecht.</p>
+                    <p>(4) Dieses Nutzungsrecht umfasst ausdrücklich auch die kommerzielle Nutzung der heruntergeladenen Musikstücke.</p>
+                    <p>(5) Der Nutzer ist berechtigt, die Musik z. B. zu verwenden für:</p>
+                    <ul className="list-disc list-inside ml-2 mt-1">
+                      <li>Videos (z. B. YouTube, Social Media)</li>
+                      <li>kommerzielle Projekte</li>
+                      <li>eigene Inhalte und Produktionen</li>
+                    </ul>
+                    <p className="mt-2">(6) Nicht gestattet ist jedoch:</p>
+                    <ul className="list-disc list-inside ml-2 mt-1">
+                      <li>Weiterverkauf der Musik als eigenständiges Produkt</li>
+                      <li>Weitergabe oder Vertrieb der Musikdateien an Dritte</li>
+                      <li>Upload auf Streamingplattformen als eigener Inhalt</li>
+                    </ul>
+                  </section>
+
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">6. Zahlungsbedingungen</h4>
+                    <p>(1) Die Bezahlung erfolgt ausschließlich über PayPal.</p>
+                    <p>(2) Voraussetzung für den Kauf ist ein gültiges PayPal-Konto.</p>
+                    <p>(3) Mit Abschluss der Zahlung kommt ein verbindlicher Kaufvertrag zustande.</p>
+                  </section>
+
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">7. Digitale Inhalte und Widerrufsrecht</h4>
+                    <p>(1) Bei den angebotenen Produkten handelt es sich um digitale Inhalte.</p>
+                    <p>(2) Der Nutzer stimmt ausdrücklich zu, dass die Ausführung des Vertrags vor Ablauf der Widerrufsfrist beginnt.</p>
+                    <p>(3) Der Nutzer bestätigt, dass mit Beginn des Downloads sein Widerrufsrecht erlischt.</p>
+                    <p>(4) Eine Rückerstattung ist ausgeschlossen.</p>
+                  </section>
+
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">8. Urheberrechte</h4>
+                    <p>(1) Alle Inhalte auf der Plattform sind urheberrechtlich geschützt.</p>
+                    <p>(2) Die Rechte liegen beim Betreiber oder den jeweiligen Rechteinhabern.</p>
+                    <p>(3) Die Nutzung ist nur im Rahmen der in diesen AGB eingeräumten Rechte zulässig.</p>
+                  </section>
+
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">9. Verfügbarkeit der Plattform</h4>
+                    <p>(1) Der Betreiber bemüht sich um eine möglichst unterbrechungsfreie Verfügbarkeit der Plattform.</p>
+                    <p>(2) Es besteht kein Anspruch auf permanente Verfügbarkeit.</p>
+                  </section>
+
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">10. Haftung</h4>
+                    <p>(1) Der Betreiber haftet nur für Schäden, die auf vorsätzlichem oder grob fahrlässigem Verhalten beruhen.</p>
+                    <p>(2) Für technische Störungen, Datenverluste oder Ausfälle von Drittanbietern wird keine Haftung übernommen, soweit gesetzlich zulässig.</p>
+                  </section>
+
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">11. Änderungen der AGB</h4>
+                    <p>Der Betreiber behält sich vor, diese AGB jederzeit zu ändern. Die weitere Nutzung der Plattform gilt als Zustimmung zu den geänderten Bedingungen.</p>
+                  </section>
+
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">12. Anwendbares Recht</h4>
+                    <p>Es gilt das Recht der Bundesrepublik Deutschland.</p>
+                  </section>
+
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">13. Schlussbestimmungen</h4>
+                    <p>Sollte eine Bestimmung dieser AGB unwirksam sein oder werden, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt.</p>
+                  </section>
+
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">14. KI-generierte Inhalte</h4>
+                    <p>(1) Die auf der Plattform angebotenen Musikstücke werden vollständig oder überwiegend mithilfe von künstlicher Intelligenz erstellt.</p>
+                    <p>(2) Die Inhalte basieren auf Technologien, unter anderem unter Verwendung von KI-Systemen wie Suno, und werden durch den Betreiber weiterentwickelt, bearbeitet oder kuratiert.</p>
+                    <p>(3) Es wird ausschließlich KI-generierte Musik angeboten. Es handelt sich nicht um klassische, von menschlichen Künstlern produzierte Musikwerke.</p>
+                    <p>(4) Texte, Kompositionen und finale Inhalte werden durch VRifle erstellt bzw. kontrolliert und zur Nutzung bereitgestellt.</p>
+                    <p>(5) Trotz KI-Erstellung unterliegen die angebotenen Inhalte den geltenden urheberrechtlichen bzw. nutzungsrechtlichen Bestimmungen gemäß diesen AGB.</p>
+                  </section>
+                </div>
               )}
               {activeLegalModal === 'widerruf' && (
-                <>
-                  <p><strong>Widerrufsbelehrung & Erlöschen des Widerrufsrechts</strong></p>
-                  <p>Verbraucher haben grundsätzlich ein gesetzliches Widerrufsrecht.</p>
-                  <p><strong>Besonderer Hinweis zum vorzeitigen Erlöschen des Widerrufsrechts bei digitalen Inhalten:</strong></p>
-                  <p>Ihr Widerrufsrecht erlischt vorzeitig, wenn wir mit der Ausführung des Vertrags begonnen haben, nachdem Sie ausdrücklich zugestimmt haben, dass wir mit der Ausführung des Vertrags vor Ablauf der Widerrufsfrist beginnen, und Sie Ihre Kenntnis davon bestätigt haben, dass Sie durch Ihre Zustimmung mit Beginn der Ausführung des Vertrags Ihr Widerrufsrecht verlieren.</p>
-                  <p><em>(Hier fügst du deine echte Widerrufsbelehrung ein)</em></p>
-                </>
+                <div className="space-y-6">
+                  <section>
+                    <h4 className="text-lg font-bold text-white mb-2">Widerrufsbelehrung für digitale Inhalte</h4>
+                    <h5 className="font-bold text-white/90 mb-1">1. Widerrufsrecht</h5>
+                    <p>Als Verbraucher haben Sie grundsätzlich das Recht, innerhalb von 14 Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen.</p>
+                    <p className="mt-2">Bei VRifle Music betrifft dies ausschließlich digitale Inhalte (Musikdownloads).</p>
+                  </section>
+
+                  <section>
+                    <h5 className="font-bold text-white/90 mb-1">2. Widerrufsfrist</h5>
+                    <p>Die Widerrufsfrist beträgt 14 Tage ab dem Tag des Vertragsabschlusses (also dem Kauf eines Musikdownloads).</p>
+                  </section>
+
+                  <section>
+                    <h5 className="font-bold text-white/90 mb-1">3. Ausschluss des Widerrufsrechts</h5>
+                    <p>Das Widerrufsrecht erlischt bei digitalen Inhalten gemäß § 356 Abs. 5 BGB in Verbindung mit Art. 6 Abs. 1 lit. b DSGVO, sobald:</p>
+                    <ul className="list-disc list-inside ml-2 mt-1">
+                      <li>der Download des digitalen Inhalts begonnen hat, und</li>
+                      <li>der Nutzer ausdrücklich zugestimmt hat, dass die Ausführung des Vertrags vor Ablauf der Widerrufsfrist beginnt, und</li>
+                      <li>der Nutzer Kenntnis davon hat, dass er dadurch sein Widerrufsrecht verliert.</li>
+                    </ul>
+                    <p className="mt-4"><strong>Bei VRifle Music gilt dies standardmäßig:</strong></p>
+                    <ul className="list-disc list-inside ml-2 mt-1">
+                      <li>Musikdownloads werden sofort nach dem Kauf bereitgestellt</li>
+                      <li>Mit dem Kauf bestätigen Sie, dass Sie die Sofortbereitstellung wünschen und damit auf Ihr Widerrufsrecht verzichten</li>
+                    </ul>
+                    <p className="mt-2">Daher sind Rückerstattungen ausgeschlossen.</p>
+                  </section>
+
+                  <section>
+                    <h5 className="font-bold text-white/90 mb-1">4. Hinweis für den Kaufprozess</h5>
+                    <p>Um rechtlich sicher zu sein, muss der Kaufprozess eine explizite Zustimmung enthalten, z. B. durch eine Checkbox:</p>
+                    <p className="italic mt-2 bg-white/5 p-3 rounded-lg border border-white/10">
+                      „Ich stimme ausdrücklich zu, dass der Download sofort bereitgestellt wird. Mir ist bekannt, dass ich dadurch mein Widerrufsrecht verliere.“
+                    </p>
+                    <p className="mt-2 text-xs text-white/40">Ohne diese Zustimmung wäre die Regelung angreifbar.</p>
+                  </section>
+
+                  <section>
+                    <h5 className="font-bold text-white/90 mb-1">5. Zusammenfassung</h5>
+                    <ul className="list-disc list-inside ml-2 mt-1">
+                      <li>Alle Produkte auf VRifle Music sind digitale Inhalte</li>
+                      <li>Keine Rückgabe oder Erstattung nach Downloadstart</li>
+                      <li>Widerrufsrecht erlischt sofort bei Sofortdownload</li>
+                    </ul>
+                  </section>
+                </div>
               )}
             </div>
             <div className="flex justify-end mt-6 pt-4 border-t border-white/10">

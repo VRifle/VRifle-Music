@@ -60,7 +60,8 @@ export const translations = {
     language: 'Sprache',
     comingSoon: 'Funktion folgt in Kürze',
     addToLibrary: 'Zur Bibliothek hinzufügen',
-    removeFromLibrary: 'Aus Bibliothek entfernen'
+    removeFromLibrary: 'Aus Bibliothek entfernen',
+    aiGeneratedContent: 'KI-generierte Inhalte'
   },
   en: {
     home: 'Home',
@@ -121,6 +122,7 @@ export const translations = {
     language: 'Language',
     comingSoon: 'Feature coming soon',
     addToLibrary: 'Add to Library',
-    removeFromLibrary: 'Remove from Library'
+    removeFromLibrary: 'Remove from Library',
+    aiGeneratedContent: 'AI generated content'
   }
 };
