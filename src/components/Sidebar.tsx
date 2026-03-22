@@ -3,10 +3,11 @@ import { Home, Library, PlusSquare, Heart } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 interface SidebarProps {
-  onUploadClick: () => void;
+  currentView: 'home' | 'library' | 'liked';
+  onViewChange: (view: 'home' | 'library' | 'liked') => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ onUploadClick }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange }) => {
   const { t } = useLanguage();
 
   return (
@@ -19,30 +20,32 @@ export const Sidebar: React.FC<SidebarProps> = ({ onUploadClick }) => {
       </div>
       
       <nav className="space-y-2 mb-8">
-        <a href="#" className="flex items-center gap-4 text-white hover:bg-white/10 p-2 rounded-lg transition-all">
+        <button 
+          onClick={() => onViewChange('home')} 
+          className={`flex items-center gap-4 p-2 rounded-lg transition-all w-full text-left ${currentView === 'home' ? 'text-white bg-white/10' : 'text-gray-300 hover:text-white hover:bg-white/5'}`}
+        >
           <Home size={24} />
           <span className="font-semibold">{t('home')}</span>
-        </a>
-        <button 
-          onClick={onUploadClick}
-          className="flex items-center gap-4 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-all w-full text-left"
-        >
-          <PlusSquare size={24} />
-          <span className="font-semibold">{t('submitSong')}</span>
         </button>
-        <a href="#" className="flex items-center gap-4 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-all">
+        <button 
+          onClick={() => onViewChange('library')} 
+          className={`flex items-center gap-4 p-2 rounded-lg transition-all w-full text-left ${currentView === 'library' ? 'text-white bg-white/10' : 'text-gray-300 hover:text-white hover:bg-white/5'}`}
+        >
           <Library size={24} />
           <span className="font-semibold">{t('library')}</span>
-        </a>
+        </button>
       </nav>
 
       <div className="space-y-2 mb-6">
-        <button className="flex items-center gap-4 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-all w-full text-left">
+        <button className="flex items-center gap-4 hover:text-white hover:bg-white/5 p-2 rounded-lg transition-all w-full text-left">
           <PlusSquare size={24} className="text-gray-400" />
           <span className="font-semibold">{t('createPlaylist')}</span>
         </button>
-        <button className="flex items-center gap-4 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-all w-full text-left">
-          <Heart size={24} className="text-gray-400" />
+        <button 
+          onClick={() => onViewChange('liked')} 
+          className={`flex items-center gap-4 p-2 rounded-lg transition-all w-full text-left ${currentView === 'liked' ? 'text-white bg-white/10' : 'text-gray-300 hover:text-white hover:bg-white/5'}`}
+        >
+          <Heart size={24} className={currentView === 'liked' ? 'text-white' : 'text-gray-400'} />
           <span className="font-semibold">{t('likedSongs')}</span>
         </button>
       </div>

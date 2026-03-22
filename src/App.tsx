@@ -10,6 +10,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 
 export default function App() {
   const [showSubmissionModal, setShowSubmissionModal] = React.useState(false);
+  const [currentView, setCurrentView] = React.useState<'home' | 'library' | 'liked'>('home');
 
   useEffect(() => {
     seedDatabase().catch(console.error);
@@ -22,8 +23,9 @@ export default function App() {
           <PlayerProvider>
             <div className="h-screen flex flex-col bg-liquid text-white font-sans overflow-hidden">
               <div className="flex-1 flex overflow-hidden">
-                <Sidebar onUploadClick={() => setShowSubmissionModal(true)} />
+                <Sidebar currentView={currentView} onViewChange={setCurrentView} />
                 <MainContent 
+                  currentView={currentView}
                   showSubmissionModal={showSubmissionModal} 
                   onCloseSubmissionModal={() => setShowSubmissionModal(false)} 
                 />

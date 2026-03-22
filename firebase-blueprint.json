@@ -53,6 +53,17 @@
       },
       "required": ["userId", "songId", "addedAt"]
     },
+    "Library": {
+      "title": "Library",
+      "description": "A user's library song.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "songId": { "type": "string" },
+        "addedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "songId", "addedAt"]
+    },
     "Purchase": {
       "title": "Purchase",
       "description": "Record of a song download purchase.",
@@ -99,6 +110,10 @@
     "favorites/{favoriteId}": {
       "schema": "Favorite",
       "description": "Stores favorite relationships."
+    },
+    "library/{libraryId}": {
+      "schema": "Library",
+      "description": "Stores library relationships."
     },
     "purchases/{purchaseId}": {
       "schema": "Purchase",

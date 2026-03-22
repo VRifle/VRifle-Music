@@ -21,16 +21,18 @@ interface Submission {
 }
 
 interface MainContentProps {
+  currentView: 'home' | 'library' | 'liked';
   showSubmissionModal: boolean;
   onCloseSubmissionModal: () => void;
 }
 
-export const MainContent: React.FC<MainContentProps> = ({ showSubmissionModal, onCloseSubmissionModal }) => {
+export const MainContent: React.FC<MainContentProps> = ({ currentView, showSubmissionModal, onCloseSubmissionModal }) => {
   const { user, isAdmin, authError, login, logout } = useAuth();
   const { currentSong, isPlaying, playSong, togglePlay } = usePlayer();
   const { t, language, setLanguage } = useLanguage();
   const [songs, setSongs] = useState<Song[]>([]);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [libraryTracks, setLibraryTracks] = useState<Set<string>>(new Set());
   const [purchased, setPurchased] = useState<Set<string>>(new Set());
   const [downloadingSong, setDownloadingSong] = useState<string | null>(null);
   
@@ -86,6 +88,10 @@ export const MainContent: React.FC<MainContentProps> = ({ showSubmissionModal, o
           const favSnap = await getDocs(favQuery);
           setFavorites(new Set(favSnap.docs.map(doc => doc.data().songId)));
 
+          const libQuery = query(collection(db, 'library'), where('userId', '==', user.uid));
+          const libSnap = await getDocs(libQuery);
+          setLibraryTracks(new Set(libSnap.docs.map(doc => doc.data().songId)));
+
           const purQuery = query(collection(db, 'purchases'), where('userId', '==', user.uid));
           const purSnap = await getDocs(purQuery);
           setPurchased(new Set(purSnap.docs.map(doc => doc.data().songId)));
@@ -100,9 +106,37 @@ export const MainContent: React.FC<MainContentProps> = ({ showSubmissionModal, o
       fetchUserData();
     } else {
       setFavorites(new Set());
+      setLibraryTracks(new Set());
       setPurchased(new Set());
     }
   }, [user]);
+
+  const toggleLibrary = async (songId: string) => {
+    if (!user) return login();
+    
+    const libId = `${user.uid}_${songId}`;
+    const libRef = doc(db, 'library', libId);
+    
+    try {
+      if (libraryTracks.has(songId)) {
+        await deleteDoc(libRef);
+        setLibraryTracks(prev => {
+          const next = new Set(prev);
+          next.delete(songId);
+          return next;
+        });
+      } else {
+        await setDoc(libRef, { userId: user.uid, songId, addedAt: new Date().toISOString() });
+        setLibraryTracks(prev => new Set(prev).add(songId));
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('Missing or insufficient permissions')) {
+        handleFirestoreError(error, OperationType.WRITE, `library/${libId}`);
+      } else {
+        console.error(error);
+      }
+    }
+  };
 
   const toggleFavorite = async (songId: string) => {
     if (!user) return login();
@@ -459,110 +493,131 @@ export const MainContent: React.FC<MainContentProps> = ({ showSubmissionModal, o
           </div>
         )}
 
-        <h2 className="text-white text-2xl font-bold mb-6 drop-shadow-md">{t('featuredSongs')}</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-          {songs.map(song => (
-            <div key={song.id} className="bg-white/5 backdrop-blur-lg border border-white/10 p-3 md:p-4 rounded-2xl hover:bg-white/10 transition group relative shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
-              <div className="relative mb-3 md:mb-4">
-                <img 
-                  src={getDirectImageUrl(song.coverUrl)} 
-                  alt={song.title} 
-                  className="w-full aspect-square object-cover object-center rounded-md shadow-lg" 
-                  referrerPolicy="no-referrer"
-                />
-                <button 
-                  onClick={() => currentSong?.id === song.id ? togglePlay() : playSong(song)}
-                  className={`absolute inset-0 m-auto w-14 h-14 bg-white/20 backdrop-blur-xl border border-white/30 text-white rounded-full flex items-center justify-center shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] hover:bg-white/30 hover:scale-110 transition-all z-10 ${currentSong?.id === song.id && isPlaying ? 'opacity-100 scale-105' : 'opacity-60 group-hover:opacity-100'}`}
-                >
-                  {currentSong?.id === song.id && isPlaying ? <Pause size={28} fill="currentColor" /> : <Play size={28} fill="currentColor" className="ml-1" />}
-                </button>
-              </div>
-              <h3 className="text-white font-semibold truncate">{song.title}</h3>
-              <p className="text-zinc-400 text-sm truncate mb-4">{song.artist}</p>
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <button onClick={() => toggleFavorite(song.id)} className="text-zinc-400 hover:text-white transition">
-                    <Heart size={20} fill={favorites.has(song.id) ? "currentColor" : "none"} className={favorites.has(song.id) ? "text-green-500" : ""} />
+        <h2 className="text-white text-2xl font-bold mb-6 drop-shadow-md">
+          {currentView === 'home' ? t('featuredSongs') : currentView === 'library' ? t('library') : t('likedSongs')}
+        </h2>
+        
+        {currentView !== 'home' && !user ? (
+          <div className="text-center py-12 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10">
+            <p className="text-white/60 mb-4">{t('loginToSubmit')}</p>
+            <button onClick={login} className="bg-white text-black font-bold px-6 py-2 rounded-full hover:bg-zinc-200 transition shadow-lg">
+              {t('login')}
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+            {songs
+              .filter(song => {
+                if (currentView === 'library') return libraryTracks.has(song.id);
+                if (currentView === 'liked') return favorites.has(song.id);
+                return true;
+              })
+              .map(song => (
+              <div key={song.id} className="bg-white/5 backdrop-blur-lg border border-white/10 p-3 md:p-4 rounded-2xl hover:bg-white/10 transition group relative shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
+                <div className="relative mb-3 md:mb-4">
+                  <img 
+                    src={getDirectImageUrl(song.coverUrl)} 
+                    alt={song.title} 
+                    className="w-full aspect-square object-cover object-center rounded-md shadow-lg" 
+                    referrerPolicy="no-referrer"
+                  />
+                  <button 
+                    onClick={() => currentSong?.id === song.id ? togglePlay() : playSong(song)}
+                    className={`absolute inset-0 m-auto w-14 h-14 bg-white/20 backdrop-blur-xl border border-white/30 text-white rounded-full flex items-center justify-center shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] hover:bg-white/30 hover:scale-110 transition-all z-10 ${currentSong?.id === song.id && isPlaying ? 'opacity-100 scale-105' : 'opacity-60 group-hover:opacity-100'}`}
+                  >
+                    {currentSong?.id === song.id && isPlaying ? <Pause size={28} fill="currentColor" /> : <Play size={28} fill="currentColor" className="ml-1" />}
                   </button>
-                  {isAdmin && (
-                    <button onClick={() => setSongToDelete(song)} className="text-zinc-400 hover:text-red-500 transition ml-2" title={t('deleteSong')}>
-                      <Trash2 size={18} />
+                </div>
+                <h3 className="text-white font-semibold truncate">{song.title}</h3>
+                <p className="text-zinc-400 text-sm truncate mb-4">{song.artist}</p>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => toggleFavorite(song.id)} className="text-zinc-400 hover:text-white transition" title={t('likedSongs')}>
+                      <Heart size={20} fill={favorites.has(song.id) ? "currentColor" : "none"} className={favorites.has(song.id) ? "text-green-500" : ""} />
+                    </button>
+                    <button onClick={() => toggleLibrary(song.id)} className="text-zinc-400 hover:text-white transition" title={libraryTracks.has(song.id) ? t('removeFromLibrary') : t('addToLibrary')}>
+                      {libraryTracks.has(song.id) ? <Check size={20} className="text-green-500" /> : <Plus size={20} />}
+                    </button>
+                    {isAdmin && (
+                      <button onClick={() => setSongToDelete(song)} className="text-zinc-400 hover:text-red-500 transition ml-2" title={t('deleteSong')}>
+                        <Trash2 size={18} />
+                      </button>
+                    )}
+                  </div>
+                  
+                  {purchased.has(song.id) ? (
+                    <button onClick={() => handleDownload(song)} className="bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30 px-3 py-1.5 rounded-full transition flex items-center gap-1 text-sm font-medium backdrop-blur-md">
+                      <Download size={16} /> {t('download')}
+                    </button>
+                  ) : (
+                    <button 
+                      disabled
+                      className="bg-white/5 text-zinc-500 border border-white/10 px-3 py-1.5 rounded-full flex items-center gap-1 text-sm font-medium backdrop-blur-md cursor-not-allowed"
+                      title={t('purchaseDisabled')}
+                    >
+                      <Download size={16} /> 0.20€
                     </button>
                   )}
                 </div>
-                
-                {purchased.has(song.id) ? (
-                  <button onClick={() => handleDownload(song)} className="bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30 px-3 py-1.5 rounded-full transition flex items-center gap-1 text-sm font-medium backdrop-blur-md">
-                    <Download size={16} /> {t('download')}
-                  </button>
-                ) : (
-                  <button 
-                    disabled
-                    className="bg-white/5 text-zinc-500 border border-white/10 px-3 py-1.5 rounded-full flex items-center gap-1 text-sm font-medium backdrop-blur-md cursor-not-allowed"
-                    title={t('purchaseDisabled')}
-                  >
-                    <Download size={16} /> 0.20€
-                  </button>
-                )}
-              </div>
 
-              {/* PayPal Modal */}
-              {downloadingSong === song.id && (
-                <div className="absolute inset-0 bg-black/60 backdrop-blur-xl rounded-2xl p-4 flex flex-col items-center justify-center z-20 border border-white/10">
-                  <p className="text-white text-sm text-center mb-4 font-medium drop-shadow-md">{t('buyFor', { title: song.title, price: '0.20€' })}</p>
-                  <div className="w-full max-w-[150px]">
-                    <PayPalScriptProvider options={{ clientId: "AWsNo5DqreDWuDj8wh8QwRuN5UwAcV8wRbV0thPR5B-2gRgC86A0PfI3WY2nDwdS-f3rYPfcMrrzTysU", currency: "EUR" }}>
-                      <PayPalButtons 
-                        style={{ layout: "horizontal", height: 30 }}
-                        createOrder={(data, actions) => {
-                          return actions.order.create({
-                            intent: "CAPTURE",
-                            purchase_units: [{
-                              amount: { value: "0.20", currency_code: "EUR" },
-                              description: `Download ${song.title}`,
-                              payee: {
-                                email_address: "sk.vrifle@gmail.com"
-                              }
-                            }]
-                          });
-                        }}
-                        onApprove={async (data, actions) => {
-                          if (actions.order) {
-                            const details = await actions.order.capture();
-                            if (user) {
-                              try {
-                                const purchaseId = `${user.uid}_${song.id}_${Date.now()}`;
-                                await setDoc(doc(db, 'purchases', purchaseId), {
-                                  userId: user.uid,
-                                  songId: song.id,
-                                  amount: 0.20,
-                                  currency: 'EUR',
-                                  paypalOrderId: details.id,
-                                  purchasedAt: new Date().toISOString()
-                                });
-                                setPurchased(prev => new Set(prev).add(song.id));
-                                setDownloadingSong(null);
-                              } catch (error) {
-                                if (error instanceof Error && error.message.includes('Missing or insufficient permissions')) {
-                                  handleFirestoreError(error, OperationType.WRITE, 'purchases');
-                                } else {
-                                  console.error(error);
+                {/* PayPal Modal */}
+                {downloadingSong === song.id && (
+                  <div className="absolute inset-0 bg-black/60 backdrop-blur-xl rounded-2xl p-4 flex flex-col items-center justify-center z-20 border border-white/10">
+                    <p className="text-white text-sm text-center mb-4 font-medium drop-shadow-md">{t('buyFor', { title: song.title, price: '0.20€' })}</p>
+                    <div className="w-full max-w-[150px]">
+                      <PayPalScriptProvider options={{ clientId: "AWsNo5DqreDWuDj8wh8QwRuN5UwAcV8wRbV0thPR5B-2gRgC86A0PfI3WY2nDwdS-f3rYPfcMrrzTysU", currency: "EUR" }}>
+                        <PayPalButtons 
+                          style={{ layout: "horizontal", height: 30 }}
+                          createOrder={(data, actions) => {
+                            return actions.order.create({
+                              intent: "CAPTURE",
+                              purchase_units: [{
+                                amount: { value: "0.20", currency_code: "EUR" },
+                                description: `Download ${song.title}`,
+                                payee: {
+                                  email_address: "sk.vrifle@gmail.com"
+                                }
+                              }]
+                            });
+                          }}
+                          onApprove={async (data, actions) => {
+                            if (actions.order) {
+                              const details = await actions.order.capture();
+                              if (user) {
+                                try {
+                                  const purchaseId = `${user.uid}_${song.id}_${Date.now()}`;
+                                  await setDoc(doc(db, 'purchases', purchaseId), {
+                                    userId: user.uid,
+                                    songId: song.id,
+                                    amount: 0.20,
+                                    currency: 'EUR',
+                                    paypalOrderId: details.id,
+                                    purchasedAt: new Date().toISOString()
+                                  });
+                                  setPurchased(prev => new Set(prev).add(song.id));
+                                  setDownloadingSong(null);
+                                } catch (error) {
+                                  if (error instanceof Error && error.message.includes('Missing or insufficient permissions')) {
+                                    handleFirestoreError(error, OperationType.WRITE, 'purchases');
+                                  } else {
+                                    console.error(error);
+                                  }
                                 }
                               }
                             }
-                          }
-                        }}
-                        onCancel={() => setDownloadingSong(null)}
-                      />
-                    </PayPalScriptProvider>
+                          }}
+                          onCancel={() => setDownloadingSong(null)}
+                        />
+                      </PayPalScriptProvider>
+                    </div>
+                    <button onClick={() => setDownloadingSong(null)} className="mt-2 text-xs text-zinc-400 hover:text-white">{t('cancel')}</button>
                   </div>
-                  <button onClick={() => setDownloadingSong(null)} className="mt-2 text-xs text-zinc-400 hover:text-white">{t('cancel')}</button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Footer */}
@@ -760,6 +815,22 @@ export const MainContent: React.FC<MainContentProps> = ({ showSubmissionModal, o
                   className="flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/10 text-white px-4 py-2 rounded-full text-sm font-bold transition"
                 >
                   {language === 'de' ? 'Deutsch' : 'English'}
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                <div className="flex items-center gap-3 text-white">
+                  <Upload size={20} className="text-white/70" />
+                  <div className="flex flex-col">
+                    <span>{t('submitSong')}</span>
+                    <span className="text-xs text-white/50">{t('comingSoon')}</span>
+                  </div>
+                </div>
+                <button 
+                  disabled
+                  className="flex items-center gap-2 bg-white/5 border border-white/5 text-white/30 px-4 py-2 rounded-full text-sm font-bold cursor-not-allowed"
+                >
+                  {t('submit')}
                 </button>
               </div>
             </div>

@@ -40,6 +40,13 @@ service cloud.firestore {
     //   - songId: string (required)
     //   - addedAt: string (required)
     //
+    // Collection: library
+    // Document ID: libraryId (userId_songId)
+    // Fields:
+    //   - userId: string (required)
+    //   - songId: string (required)
+    //   - addedAt: string (required)
+    //
     // Collection: purchases
     // Document ID: purchaseId
     // Fields:
@@ -119,6 +126,13 @@ service cloud.firestore {
              data.addedAt is string;
     }
 
+    function isValidLibrary(data) {
+      return hasOnlyAllowedFields(['userId', 'songId', 'addedAt']) &&
+             data.userId is string && data.userId == request.auth.uid &&
+             data.songId is string && data.songId.size() > 0 && data.songId.size() < 100 &&
+             data.addedAt is string;
+    }
+
     function isValidPurchase(data) {
       return hasOnlyAllowedFields(['userId', 'songId', 'amount', 'currency', 'paypalOrderId', 'purchasedAt']) &&
              data.userId is string && data.userId == request.auth.uid &&
@@ -172,6 +186,14 @@ service cloud.firestore {
       allow read: if isDocOwner() || isAdmin();
       allow create: if isAuthenticated() && isValidFavorite(request.resource.data) &&
                     favoriteId == request.auth.uid + '_' + request.resource.data.songId;
+      allow delete: if isDocOwner() || isAdmin();
+    }
+
+    match /library/{libraryId} {
+      // libraryId should be userId_songId
+      allow read: if isDocOwner() || isAdmin();
+      allow create: if isAuthenticated() && isValidLibrary(request.resource.data) &&
+                    libraryId == request.auth.uid + '_' + request.resource.data.songId;
       allow delete: if isDocOwner() || isAdmin();
     }
 

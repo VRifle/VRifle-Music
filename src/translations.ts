@@ -57,7 +57,10 @@ export const translations = {
     purchaseDisabled: 'Kauf vorübergehend deaktiviert (Rechtstexte fehlen)',
     backToLibrary: 'Zurück zur Bibliothek',
     settings: 'Einstellungen',
-    language: 'Sprache'
+    language: 'Sprache',
+    comingSoon: 'Funktion folgt in Kürze',
+    addToLibrary: 'Zur Bibliothek hinzufügen',
+    removeFromLibrary: 'Aus Bibliothek entfernen'
   },
   en: {
     home: 'Home',
@@ -115,6 +118,9 @@ export const translations = {
     purchaseDisabled: 'Purchase temporarily disabled (legal texts missing)',
     backToLibrary: 'Back to Library',
     settings: 'Settings',
-    language: 'Language'
+    language: 'Language',
+    comingSoon: 'Feature coming soon',
+    addToLibrary: 'Add to Library',
+    removeFromLibrary: 'Remove from Library'
   }
 };
